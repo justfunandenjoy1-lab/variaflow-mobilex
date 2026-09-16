@@ -5,7 +5,7 @@ on:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
-  workflow_dispatch: # যাতে ম্যানুয়ালি রান করা যায়
+  workflow_dispatch:
 
 jobs:
   build:
@@ -16,20 +16,30 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
 
-      # প্রোজেক্ট যদি React Native বা Flutter হয়, তবে working-directory: android লাইনটি আনকমেন্ট করুন
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-        # working-directory: android
+        run: |
+          if [ -f "gradlew" ]; then
+            chmod +x gradlew
+          elif [ -f "android/gradlew" ]; then
+            chmod +x android/gradlew
+          else
+            echo "Error: gradlew file not found in root or android/ folder."
+            ls -la
+            exit 1
+          fi
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug
-        # working-directory: android
+        run: |
+          if [ -f "gradlew" ]; then
+            ./gradlew assembleDebug
+          elif [ -f "android/gradlew" ]; then
+            cd android && ./gradlew assembleDebug
+          fi
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
