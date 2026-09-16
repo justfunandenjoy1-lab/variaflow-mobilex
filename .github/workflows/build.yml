@@ -5,35 +5,34 @@ on:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
-  workflow_dispatch:
+  workflow_dispatch: # যাতে ম্যানুয়ালি রান করা যায়
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # ১. রিপোজিটরির ফাইল চেকআউট
-      - name: Checkout repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      # ২. জাভা সেটআপ (ক্যাশ ছাড়া)
       - name: Set up JDK 17
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: gradle
 
-      # ৩. gradlew ফাইল এক্সিকিউটেবল করা
+      # প্রোজেক্ট যদি React Native বা Flutter হয়, তবে working-directory: android লাইনটি আনকমেন্ট করুন
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+        # working-directory: android
 
-      # ৪. APK বিল্ড করা
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon
+        run: ./gradlew assembleDebug
+        # working-directory: android
 
-      # ৫. APK আপলোড করা
-      - name: Upload Debug APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          name: app-debug
+          path: '**/build/outputs/apk/debug/*.apk'
