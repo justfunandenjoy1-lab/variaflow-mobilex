@@ -12,19 +12,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ১. রিপোজিটরির সমস্ত ফাইল রানারে চেকআউট করা
+      # ১. রিপোজিটরির ফাইল চেকআউট
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ২. জাভা (JDK 17) সেটআপ করা
+      # ২. জাভা সেটআপ (ক্যাশ ছাড়া)
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
 
-      # ৩. gradlew ফাইলকে এক্সিকিউটেবল পারমিশন দেওয়া
+      # ৩. gradlew ফাইল এক্সিকিউটেবল করা
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
@@ -32,7 +31,7 @@ jobs:
       - name: Build Debug APK
         run: ./gradlew assembleDebug --no-daemon
 
-      # ৫. তৈরি হওয়া APK ফাইলটি ডাউনলোডের জন্য আপলোড করা
+      # ৫. APK আপলোড করা
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
